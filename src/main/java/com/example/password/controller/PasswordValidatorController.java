@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.password.service.PasswordValidatorService;
+import com.example.password.validator.PasswordRequest;
 import com.example.password.validator.ValidationResult;
 
 @RestController
@@ -18,10 +19,13 @@ public class PasswordValidatorController {
 	@Autowired
 	private PasswordValidatorService pwdValidatorService;
 	
+	@Autowired
+	ValidationResult result;
+	
 	@GetMapping("/password")
-	public ResponseEntity<ValidationResult> validatePassword(@RequestBody String password) {
+	public ResponseEntity<ValidationResult> validatePassword(@RequestBody PasswordRequest password) {
 		
-		ValidationResult result = pwdValidatorService.validatePassword(password);
+		result = pwdValidatorService.validatePassword(password.getPassword());
 		
 		return new ResponseEntity<ValidationResult>(result,HttpStatus.OK);
 	}

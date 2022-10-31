@@ -13,8 +13,7 @@ public class PasswordValidatorService {
 	private PasswordValidator passwordValidator;
 	
 	public ValidationResult validatePassword( final String password) {
-		ValidationResult result = passwordValidator.validatePassword(password); 
-		return result;
+		return passwordValidator.validatePassword(password); 
 	}
 
 }

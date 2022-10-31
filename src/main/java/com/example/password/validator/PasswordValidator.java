@@ -1,53 +1,51 @@
 package com.example.password.validator;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.example.password.factory.RuleFactory;
 import com.example.password.rules.AbstractValidationRule;
-import com.example.password.rules.AtleastOneNumberAndLowerCaseLetter;
-import com.example.password.rules.LengthBetweenRange;
-import com.example.password.rules.LowerCaseAndNumbersOnly;
-import com.example.password.rules.NoRepeatingCharacterSequences;
 
 @Component
 public class PasswordValidator {
 	
 	
-	private List<AbstractValidationRule> rules;
-@Autowired
-private ValidationResult result;
+	
+	@Autowired
+	private ValidationResult result;
+	
+	@Autowired
+	private RuleFactory rulefactory;
+	
+	@Value("#{'${rules.names}'.split(',')}") 
+	private List<String> values;
 
-	
-	public PasswordValidator(final List<AbstractValidationRule> rules) {
-		
-		AtleastOneNumberAndLowerCaseLetter atleast = new AtleastOneNumberAndLowerCaseLetter();
-		LengthBetweenRange lengthRange = new LengthBetweenRange(5,12);
-		LowerCaseAndNumbersOnly lowerCase = new LowerCaseAndNumbersOnly();
-		NoRepeatingCharacterSequences noRepeat = new NoRepeatingCharacterSequences();
-		rules.add(lengthRange);
-		rules.add(atleast);
-		rules.add(lowerCase);
-		rules.add(noRepeat);
-		
-		this.rules = rules;
-	}
-	
-	public List<AbstractValidationRule> getRules() {
-		return Collections.unmodifiableList(rules);
-	}
+	/*
+	 * public List<AbstractValidationRule> getRules() { return
+	 * Collections.unmodifiableList(rules); }
+	 */
 
 	public ValidationResult validatePassword(final String password) {
 		
+		List<AbstractValidationRule> rules = new ArrayList<>();
+		AbstractValidationRule abstractRule = null;
+		
+		for(String rule : this.values) {
+			abstractRule = rulefactory.createRule(rule);
+			rules.add(abstractRule);
+		}
 		result = new ValidationResult(false, "");
 		
 		StringBuilder failureMessages = new StringBuilder();
 		
 		boolean ruleFailed = false;
 		
-		for(AbstractValidationRule rule : this.getRules()){
+		for(AbstractValidationRule rule : rules){
 			ValidationResult currResult = rule.validatePassword(password);
 			
 			if(!currResult.isSuccess()){
